@@ -16,5 +16,6 @@ void initializeLexer(const char* input);
 void freeLexer();
 Token peekToken();
 Token nextToken();
+Token peekPreviousToken();
 
 #endif
