@@ -4,7 +4,7 @@
 #include "parser.h"
 
 int main() {
-    const char* input = "-2";
+    const char* input = "-2! + 3";
     initializeLexer(input);
 
     compile();

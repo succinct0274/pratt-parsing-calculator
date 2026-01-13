@@ -40,7 +40,7 @@ static Token makeNumberToken(const char *p) {
   return t;
 }
 
-static Token makeToken(const char* p, TokenType type) {
+static Token makeToken(const char *p, TokenType type) {
   Token t;
   t.start = p;
   t.length = 1;
@@ -63,6 +63,8 @@ static Token makeOperatorToken(const char *p) {
     return makeToken(p, TOKEN_STAR);
   case '/':
     return makeToken(p, TOKEN_SLASH);
+  case '!':
+    return makeToken(p, TOKEN_FACTORIAL);
   }
 
   printf("Error when parsing character %.*s.\n", 1, p);
@@ -121,9 +123,7 @@ void freeLexer() {
 
 Token peekToken() { return lexer.tokens[lexer.pos]; }
 
-Token peekPreviousToken() {
-    return lexer.tokens[lexer.pos - 1];
-}
+Token peekPreviousToken() { return lexer.tokens[lexer.pos - 1]; }
 
 Token nextToken() {
   int idx = min(lexer.pos++, lexer.count - 1);

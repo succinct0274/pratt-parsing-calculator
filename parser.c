@@ -10,6 +10,11 @@ static void expression();
 static void grouping();
 static void negate();
 static void number();
+static void plus();
+static void minus();
+static void multiply();
+static void divide();
+static void factorial();
 static void parse(ParsePrecedence precedence);
 static void emitInstruction(InstructionType type);
 static void emitInstructionWithConstant(InstructionType type, double value);
@@ -20,11 +25,11 @@ ParseRule rules[] = {
     [TOKEN_NUMBER] = { .prefix=number, .infix=NULL, .precedence=PREC_PRIMARY },
     [TOKEN_LEFT_PAREN] = { .prefix=grouping, .infix=NULL, .precedence=PREC_NONE},
     [TOKEN_RIGHT_PAREN] = {.prefix=NULL, .infix=NULL, .precedence=PREC_NONE},
-    [TOKEN_PLUS] = {.prefix=NULL, .infix=NULL, .precedence=PREC_TERM},
-    [TOKEN_MINUS] = {.prefix=negate, .infix=NULL, .precedence=PREC_TERM},
-    [TOKEN_STAR] = {.prefix=NULL, .infix=NULL, .precedence=PREC_FACTOR},
-    [TOKEN_SLASH] = {.prefix=NULL, .infix=NULL, .precedence=PREC_FACTOR},
-    [TOKEN_FACTORIAL] = {.prefix=NULL, .infix=NULL, .precedence=PREC_FACTORIAL},
+    [TOKEN_PLUS] = {.prefix=NULL, .infix=plus, .precedence=PREC_TERM},
+    [TOKEN_MINUS] = {.prefix=negate, .infix=minus, .precedence=PREC_TERM},
+    [TOKEN_STAR] = {.prefix=NULL, .infix=multiply, .precedence=PREC_FACTOR},
+    [TOKEN_SLASH] = {.prefix=NULL, .infix=divide, .precedence=PREC_FACTOR},
+    [TOKEN_FACTORIAL] = {.prefix=NULL, .infix=factorial, .precedence=PREC_FACTORIAL},
     [TOKEN_EOF] = {.prefix=NULL, .infix=NULL, .precedence=PREC_NONE},
 };
 
@@ -64,6 +69,44 @@ static void number() {
     Token token = peekPreviousToken();
     double value = strtod(token.start, NULL);
     emitInstructionWithConstant(INSTRUCTION_CONSTANT, value);
+}
+
+static void plus() {
+    Token token = peekPreviousToken();
+    ParsePrecedence precedence = getRule(token.type)->precedence;
+    parse(precedence + 1);
+
+    emitInstruction(INSTRUCTION_ADDITION);
+}
+
+static void minus() {
+    Token token = peekPreviousToken();
+    ParsePrecedence precedence = getRule(token.type)->precedence;
+    parse(precedence + 1);
+
+    emitInstruction(INSTRUCTION_NEGATE);
+}
+
+static void multiply() {
+    Token token = peekPreviousToken();
+    ParsePrecedence precedence = getRule(token.type)->precedence;
+    parse(precedence + 1);
+
+    emitInstruction(INSTRUCTION_MULTIPLY);
+}
+
+static void divide() {
+    Token token = peekPreviousToken();
+    ParsePrecedence precedence = getRule(token.type)->precedence;
+    parse(precedence + 1);
+
+    emitInstruction(INSTRUCTION_DIVIDE);
+}
+
+static void factorial() {
+    // No need to parse further tokens for factorial as we have got the left constant
+    // Note that factorial has higher precedence than negate operator
+    emitInstruction(INSTRUCTION_FACTORIAL);
 }
 
 static void parse(ParsePrecedence precedence) {
